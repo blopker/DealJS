@@ -1,13 +1,13 @@
-function Deal (options) {
+function Deal (settings) {
 	var self = this;
-	this.options = this._init(options);
+	this._init(settings);
 	this.name = this.options.name;
-	window.onscroll = this._scrollCallback();
+	return this;
 }
 
 Deal.prototype = {
 
-	options: {
+	defaults: {
 		name: "Deal.js",
 		tag: "section",
 		pin_class: "deal-pinned",
@@ -16,98 +16,67 @@ Deal.prototype = {
 	},
 
 	_init: function(options) {
-		var opts = this._getOptions(options);
-		this._styleCards(this._getCards(opts.tag), opts.card_class);
-		return opts;
-	},
-
-	_getOptions: function(options) {
-		// Fill out holes in specified options with defaults.
-		var new_opts = this.options;
-		for(var prop in options){
-			new_opts[prop] = options[prop];
+		$('.deal-spacer').remove();
+		var opts = this._createSettings(options);
+		this.cards = $(this.options.tag);
+        // Always make tag bigger than the screen height.
+        $(this.options.tag).css('min-height', screen.height + 20 + "px" );
+		if(this.cards.length <= 1){
+			return;
 		}
-		return new_opts;
+		this.spacer = $('<div>').addClass('deal-spacer');
+
+		$(this.cards[0]).addClass(opts.card_class);
+		this._scrollCallback = this._scrollCallback.bind(this);
+		this.window = $(window);
+		this.window.scroll(this._scrollCallback);
+		this._setSpacer();
 	},
 
-	_styleCards: function(cards, style) {
-		for (var i = 0; i < cards.length; i++) {
-			this._addClass(cards[i], style);
-		}
+	refresh: function() {
+		this._init();
 	},
 
-	_getCards: function(tag_or_class) {
-		return document.getElementsByTagName(tag_or_class);
-	},
-
-	_getCardHeight: function(card) {
-		return card.clientHeight;
+	_createSettings: function(options) {
+		options = options || {};
+		this.options = $.extend({}, this.defaults, options);
+		return this.options;
 	},
 
 	_pinCard: function(card, cards) {
 		this._setSpacer(card);
-		this._addClass(card, this.options.pin_class);
+		$(card).addClass(this.options.pin_class);
 
 	},
 
-	_setSpacer: function(card) {
-		var card_height = this._getCardHeight(card);
-		var spacer = document.createElement("div");
-		spacer.style.height = card_height + "px";
-		spacer.id = this.options.spacer_id;
-		card.parentNode.insertBefore(spacer, card.nextSibling);
+	_setSpacer: function() {
+		var last_idx = this.active_idx;
+		this.active = false;
+
+		for (var i = 0; i < this.cards.length; i++) {
+		  var bottom_pos = $(this.cards[i]).offset().top + $(this.cards[i]).height();
+		  if (this.window.scrollTop() <= bottom_pos) {
+		    this.active_idx = i;
+		    this.active = this.cards[i+1];
+		    break;
+		  }
+		}
+
+		if (last_idx != this.active_idx && this.active) {
+			$(this.spacer).height($(this.active).height()).insertBefore(this.active);
+			this.cards.removeClass(this.options.pin_class);
+			this.cards.removeClass(this.options.card_class);
+			$(this.cards[this.active_idx]).addClass(this.options.card_class);
+			$(this.active).addClass(this.options.pin_class);
+		}
+
+		if(!this.active){
+			this.cards.removeClass(this.options.pin_class);
+			$(this.spacer).detach();
+		}
 	},
 
 	_scrollCallback: function() {
-		var self = this;
-		return function(e) {
-			var cards = self._getCards(self.options.tag);
-			var card_to_pin = self._getCardToPin(cards);
-			self._removePin(cards);
-			if (card_to_pin){
-				self._pinCard(card_to_pin, cards);
-			}
-		};
-	},
-
-	_getCardToPin: function(cards) {
-		for (var i = 0; i < cards.length; i++) {
-			if (this._pxFromCardBottomToBrowserTop(cards[i]) >= 0){
-				return cards[i].nextElementSibling;
-			}
-		}
-	},
-
-	_removePin: function(cards) {
-		for (var i = 0; i < cards.length; i++) {
-			this._removeClass(cards[i], this.options.pin_class);
-		}
-		var old_spacer = document.getElementById(this.options.spacer_id);
-		if (old_spacer) {
-			old_spacer.parentNode.removeChild(old_spacer);
-		}
-	},
-
-	_pxFromCardBottomToBrowserTop: function(card) {
-		return (card.offsetTop + card.clientHeight) - window.scrollY;
-	},
-
-	_hasClass: function(card, cls) {
-		return card.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
-	},
-
-	_addClass: function(card, cls) {
-		if (!this._hasClass(card, cls)){
-			// Remove left and right whitespace.
-			card.className = card.className.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-			card.className += " "+cls;
-		}
-	},
-
-	_removeClass: function(card, cls) {
-		if (this._hasClass(card,cls)) {
-			var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
-			card.className=card.className.replace(reg,' ');
+		this._setSpacer();
 	}
-}
 };

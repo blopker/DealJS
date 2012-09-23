@@ -80,8 +80,9 @@ td { vertical-align: top; }
   margin: 0 auto;
 }
 
-
-
+.menu{
+  position: fixed;
+}
 
 
 

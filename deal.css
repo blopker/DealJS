@@ -2,12 +2,14 @@
 .deal-card {
   background: white;
   z-index: 100;
-  -webkit-box-shadow: 0px 0px 5px #333333;
-  -moz-box-shadow: 0px 0px 5px #333333;
-  box-shadow: 0px 0px 5px #333333; }
-  /* line 28, style.css.scss */
+-webkit-box-shadow: 0px 2px 5px rgba(50, 50, 50, 0.75);
+-moz-box-shadow:    0px 2px 5px rgba(50, 50, 50, 0.75);
+box-shadow:         0px 2px 5px rgba(50, 50, 50, 0.75);
+}
+
 .deal-pinned {
   z-index: -1 !important;
   position: fixed;
   width: 100%;
-  top: 0px; }
+  top: 0px;
+}
