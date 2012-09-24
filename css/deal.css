@@ -3,8 +3,8 @@
   background: white;
   z-index: 100;
   -webkit-box-shadow: 0 0 12px #666;
-  -moz-box-shadow:    0 0 12px #666;
-  box-shadow:         0 0 12px #666;
+-moz-box-shadow:    0 0 12px #666;
+box-shadow:         0 0 12px #666;
 }
 
 .deal-pinned {
