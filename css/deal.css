@@ -2,9 +2,9 @@
 .deal-card {
   background: white;
   z-index: 100;
-  -webkit-box-shadow: 0 0 12px #666;
--moz-box-shadow:    0 0 12px #666;
-box-shadow:         0 0 12px #666;
+  -webkit-box-shadow: 0 1px 14px 3px #333;
+  -moz-box-shadow: 0 1px 14px 3px #333;
+  box-shadow: 0 1px 14px 3px #333;
 }
 
 .deal-pinned {
